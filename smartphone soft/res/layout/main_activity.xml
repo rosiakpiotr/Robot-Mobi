@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary">
+
+    <View
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@color/colorPrimaryDark" />
+
+    <TextView
+        android:id="@+id/connection_status_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="50dp"
+        android:text="@string/connection_status"
+        android:textColor="#fff" />
+
+    <ImageView
+        android:id="@+id/connection_status_indicator"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_alignTop="@+id/connection_status_text"
+        android:layout_marginStart="20dp"
+        android:layout_toEndOf="@+id/connection_status_text"
+        android:contentDescription="@string/connection_status_image_content_description"
+        android:src="@drawable/red_dot" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/btnSpeakContainer"
+        android:layout_marginBottom="30dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:gravity="center"
+        android:text="@string/instruction_for_voice_commands"
+        android:textColor="#fff"/>
+
+    <LinearLayout
+        android:id="@+id/btnSpeakContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@color/colorPrimaryDark"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:padding="5dp">
+
+        <ImageButton
+            android:id="@+id/microphone"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:background="@null"
+            android:contentDescription="@string/microphoneContentDsc"
+            android:scaleType="fitCenter"
+            android:layout_marginTop="4dp"
+            android:src="@drawable/microphone_off" />
+
+        <TextView
+            android:id="@+id/hint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="16dp"
+            android:textColor="#fff"
+            android:text="@string/txtHint" />
+    </LinearLayout>
+
+</RelativeLayout>

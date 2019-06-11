@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
+    tools:context="com.example.robotmobilny.AccessBleActivity"
+    android:orientation="vertical">
+
+    <View
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@color/colorPrimaryDark" />
+
+    <TextView
+        android:id="@+id/no_location"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:textColor="#fff"
+        android:text="@string/no_location_allowed"
+        android:visibility="gone"/>
+
+    <RelativeLayout
+        android:id="@+id/loadingPanel"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        android:gravity="center" >
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/searching_bluetooth"
+            android:layout_alignStart="@+id/searching_bluetooth"
+            android:layout_alignEnd="@+id/searching_bluetooth"
+            android:layout_marginBottom="8dp"
+            android:indeterminate="true" />
+
+        <TextView
+            android:id="@+id/searching_bluetooth"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/searching_bluetooth"
+            android:gravity="center"
+            android:textColor="#fff"/>
+    </RelativeLayout>
+
+
+</RelativeLayout>

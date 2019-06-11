@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Robot Mobilny</string>
+    <string name="microphoneContentDsc">Obrazek inicjujący nasłuchiwanie dźwięku.</string>
+    <string name="txtHint">Wydaj polecenie</string>
+    <string name="ble_not_supported">Przykro mi, to urządzenie nie wspiera technologii Bluetooth 4.0</string>
+    <string name="connection_status">Status połączenia</string>
+    <string name="connection_status_image_content_description">Pokazuje aktualny status połączenia Bluetooth z Robotem Mobilnym.</string>
+    <string name="explanation_location_permissions">Udzielenie dostępu do lokalizacji jest niezbędne do działania aplikacji!"</string>
+    <string name="explanation_bluetooth_enable">Włączenie Bluetooth jest niezbędne do działania aplikacji.</string>
+    <string name="no_location_allowed">Zezwól na dostęp do lokalizacji w ustawieniach aplikacji. W przeciwnym wypadku używanie Bluetooth 4.0 jest uniemożliwione.</string>
+    <string name="bt_scan_error">Błąd skanowania, kod %d. Skontaktuj się z wydawcą aplikacji przekazując mu ten kod.</string>
+    <string name="searching_bluetooth">Poszukiwanie Robota Mobilnego…</string>
+    <string name="instruction_for_voice_commands">Aby robot zrozumiał polecenie, musi ono zawierać dystans wyrażony w centymetrach oraz kierunek ruchu.\nPrzykład: Mobi, pojedź proszę 30 cm do przodu.</string>
+    <string name="voice_extra_prompt">Wydaj Mobiemu polecenie :)</string>
+</resources>
