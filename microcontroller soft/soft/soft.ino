@@ -5,12 +5,13 @@
 
 #define UltrasonicTrigger 10
 #define UltrasonicEcho 11
+#define UltrasonicMaxDistance 400
 
 #define BluetoothRX 8
 #define BluetoothTX 9
 
 SoftwareSerial bluetooth(BluetoothRX, BluetoothTX);
-NewPing ultrasonic(UltrasonicTrigger, UltrasonicEcho);
+NewPing ultrasonic(UltrasonicTrigger, UltrasonicEcho, UltrasonicMaxDistance);
 
 struct MoveParams
 {
@@ -206,7 +207,8 @@ MoveParams parseMoveParams(char message[])
 // returns true if any obstacle is at least 'distance' cm from the Mobi's face
 bool obstacleWithin(int distance)
 {
-    return ultrasonic.ping_cm() <= distance;
+    int centimeters = ultrasonic.ping_cm();
+    return centimeters == 0 ? false : centimeters <= distance;
 }
 
 void goTowards(long distance, unsigned char speed)
@@ -240,6 +242,8 @@ void turn(float angle, unsigned char speed)
     {
         rightMotor.setRotatingDirection(Motor::DIR::CLOCKWISE);
         leftMotor.setRotatingDirection(Motor::DIR::CLOCKWISE);
+        angle = -angle; // get this back to positive side,
+                        // otherwise further calculations won't succeed.
     }
     else if (angle > 0) // will turn right
     {
@@ -282,7 +286,7 @@ void move(long distance, unsigned char speed)
     float milliseconds;
 
     // At first make any eventual rotation.
-    milliseconds = timeRobotNeedsToTravel(angle, speed) * 1000;
+    milliseconds = timeRobotNeedsToTravel(distance, speed) * 1000;
 
     leftMotor.rotate(speed);
     rightMotor.rotate(speed);
