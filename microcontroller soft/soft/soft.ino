@@ -100,6 +100,19 @@ public:
         analogWrite(speedPin, pwm);
     }
 
+    // Suddenly stops both wheels with counterflow current and after 'forTime'
+    // releases wheels.
+    void stop(int forTime = 20)
+    {
+        digitalWrite(input1Pin, HIGH);
+        digitalWrite(input2Pin, HIGH);
+
+        delay(forTime);
+
+        digitalWrite(input1Pin, LOW);
+        digitalWrite(input2Pin, LOW);
+    }
+
 private:
 
     int speedPin;
@@ -132,7 +145,7 @@ void loop()
         memset(message, 0, BluetoothPacketMaxSize);
         size_t readCount = bluetooth.readBytesUntil('\n', message, BluetoothPacketMaxSize);
 
-        if (typeLetter == 'M') // M - move
+        if(typeLetter == 'M') // M - move
         {
             // get params from message
             MoveParams params = parseMoveParams(message);
@@ -140,35 +153,34 @@ void loop()
             switch (params.direction)
             {
                 case 'T': // T - towards
-                    bluetooth.print("Towards ");
-                    bluetooth.println(params.distance);
                     goTowards(params.distance, params.speed);
                     break;
 
                 case 'B': // B - backwards
-                    bluetooth.print("Back ");
-                    bluetooth.println(params.distance);
                     goBackwards(params.distance, params.speed);
                     break;
 
                 case 'R': // R - rightwards
-                    bluetooth.print("Right ");
-                    bluetooth.println(params.distance);
                     goRightwards(params.distance, params.speed);
                     break;
 
                 case 'L': // L - leftwards
-                    bluetooth.print("Left");
-                    bluetooth.println(params.distance);
                     goLeftwards(params.distance, params.speed);
                     break;
             }
 
-            // Set motors speed to 0 = stop them
-            move(0);
-
-            bluetooth.println("Finish");
         }
+        else if (typeLetter == 'D')
+        {
+            // In this case, we can receive one byte extra saying
+            // which dance should it be.
+            // There are serval dance types available.
+            char danceType = message[0];
+            dance(danceType);
+        }
+
+        // Send feedback message that requested command is completed.
+        bluetooth.println("F");
     }
 
     delay(10);
@@ -199,65 +211,94 @@ bool obstacleWithin(int distance)
 
 void goTowards(long distance, unsigned char speed)
 {
-    rightMotor.setRotatingDirection(Motor::DIR::CLOCKWISE);
-    leftMotor.setRotatingDirection(Motor::DIR::COUNTERCLOCKWISE);
-
-    move(speed);
-
-    float seconds = timeRobotNeedsToTravel(distance, speed);
-
-    // controlling distance to nearest object to the front of the robot
-    // during the moving time
-    long startTime = millis();
-    while (((millis() - startTime) >= (seconds * 1000)) && !obstacleWithin(15))
-    { delay(10); }
+    move(distance, speed);
 }
 
 void goBackwards(long distance, unsigned char speed)
 {
-    rightMotor.setRotatingDirection(Motor::DIR::CLOCKWISE);
-    leftMotor.setRotatingDirection(Motor::DIR::CLOCKWISE);
-
-    move(speed);
-
-    float seconds = timeRobotNeedsToTurn(M_PI, speed);
-    delay(seconds * 1000);
-
-    goTowards(distance, speed);
+    turn(PI, speed);
+    move(distance, speed);
 }
 
 void goRightwards(long distance, unsigned char speed)
 {
-    // turn robot to the right and go straight
-    rightMotor.setRotatingDirection(Motor::DIR::COUNTERCLOCKWISE);
-    leftMotor.setRotatingDirection(Motor::DIR::COUNTERCLOCKWISE);
-
-    move(speed);
-
-    float seconds = timeRobotNeedsToTurn(HALF_PI, speed);
-    delay(seconds * 1000);
-
-    goTowards(distance, speed);
+    turn(HALF_PI, speed);
+    move(distance, speed);
 }
 
 void goLeftwards(long distance, unsigned char speed)
 {
-    // turn robot to the left and go straight
-    rightMotor.setRotatingDirection(Motor::DIR::CLOCKWISE);
-    leftMotor.setRotatingDirection(Motor::DIR::CLOCKWISE);
-
-    move(speed);
-
-    float seconds = timeRobotNeedsToTurn(HALF_PI, speed);
-    delay(seconds * 1000);
-
-    goTowards(distance, speed);
+    turn(-HALF_PI, speed);
+    move(distance, speed);
 }
 
-void move(unsigned char speed)
+void turn(float angle, unsigned char speed)
 {
-    rightMotor.rotate(speed);
+    if (angle == 0) { return; }
+
+    else if (angle < 0) // will turn left
+    {
+        rightMotor.setRotatingDirection(Motor::DIR::CLOCKWISE);
+        leftMotor.setRotatingDirection(Motor::DIR::CLOCKWISE);
+    }
+    else if (angle > 0) // will turn right
+    {
+        rightMotor.setRotatingDirection(Motor::DIR::COUNTERCLOCKWISE);
+        leftMotor.setRotatingDirection(Motor::DIR::COUNTERCLOCKWISE);
+    }
+
+    // Variable that will hold value of time needed to complete given movement.
+    float seconds;
+
+    // At first make any eventual rotation.
+    seconds = timeRobotNeedsToTurn(angle, speed);
+
     leftMotor.rotate(speed);
+    rightMotor.rotate(speed);
+
+    delay(seconds * 1000);
+
+    // Stop wheels.
+    leftMotor.stop();
+    rightMotor.stop();
+}
+
+void move(long distance, unsigned char speed)
+{
+    if (distance == 0) { return; }
+
+    else if (distance < 0) // will go backwards
+    {
+        rightMotor.setRotatingDirection(Motor::DIR::COUNTERCLOCKWISE);
+        leftMotor.setRotatingDirection(Motor::DIR::CLOCKWISE);
+    }
+    else if (distance > 0) // will go towards
+    {
+        rightMotor.setRotatingDirection(Motor::DIR::CLOCKWISE);
+        leftMotor.setRotatingDirection(Motor::DIR::COUNTERCLOCKWISE);
+    }
+
+    // Variable that will hold value of time needed to complete given movement.
+    float milliseconds;
+
+    // At first make any eventual rotation.
+    milliseconds = timeRobotNeedsToTravel(angle, speed) * 1000;
+
+    leftMotor.rotate(speed);
+    rightMotor.rotate(speed);
+
+    // Async delay which includes checking for obstacles with ultrasonic sensor.
+    unsigned long previousTime = millis();
+
+    while (millis() - previousTime < milliseconds && !obstacleWithin(15))
+    {
+        // Saving some computional power with this delay.
+        delay(10);
+    }
+
+    // Stop wheels.
+    leftMotor.stop();
+    rightMotor.stop();
 }
 
 float timeRobotNeedsToTravel(long distance, unsigned char speed)
@@ -270,6 +311,39 @@ float timeRobotNeedsToTurn(float angle, unsigned char speed)
     // how long will it take to overcome arc length
     float arcLength = angle * 9.5; // angle in radians * circle radius
     return timeRobotNeedsToTravel(arcLength, speed);
+}
+
+// -----------------------------------------------------------------------------
+// *****************************************************************************
+
+
+// *****************************************************************************
+// Part dedicated to robot dances.
+// -----------------------------------------------------------------------------
+
+void dance(char danceType)
+{
+    unsigned char speed = 255;
+
+    switch (danceType)
+    {
+        case '1':
+            // This dance consists of slight movement to the left,
+            // slight to the right, again to the left and one revolution.
+            turn(-HALF_PI / 2.f, speed);
+            turn(HALF_PI, speed);
+            turn(-HALF_PI, speed);
+            turn(TWO_PI + HALF_PI / 2.f, speed);
+            break;
+
+        case '2':
+
+            break;
+
+        case '3':
+
+            break;
+    }
 }
 
 // -----------------------------------------------------------------------------
