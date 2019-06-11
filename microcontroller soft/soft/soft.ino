@@ -125,7 +125,7 @@ void loop()
     if (bluetooth.available() > 0)
     {
         // reading whole message that mobile app sent
-        // app sends message in following order: [type-letter][id][value];[id][value];[id][value]...
+        // app sends message in following order: [type-letter][value];[value];[value]...
         char typeLetter = bluetooth.read();
 
         char message[BluetoothPacketMaxSize];
