@@ -341,7 +341,12 @@ void dance(char danceType)
             break;
 
         case '2':
-
+            turn(-HALF_PI / 4.f, 255);
+            move(3, 150);
+            turn(HALF_PI / 2.f, 255);
+            move(3, 150);
+            turn(-HALF_PI / 8.f, 255);
+            move(-6, 200);
             break;
 
         case '3':
